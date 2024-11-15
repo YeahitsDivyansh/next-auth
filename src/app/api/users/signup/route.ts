@@ -3,16 +3,21 @@ import {connect} from '@/dbConfig/dbConfig';
 import User from '@/models/userModel';
 import {NextRequest,NextResponse} from 'next/server'
 import bcryptjs from 'bcryptjs'
-import { sendEmail  } from '@/helpers/mailer';
+import { sendEmail } from '@/helpers/mailer';
 
-connect()
+
 
 export async function POST(request: NextRequest) {
+    connect()
     try {
         const reqBody = await request.json()
         const {username, email, password}=reqBody
         // validation
         console.log(reqBody);
+
+        if(!username || !email || !password){
+            return NextResponse.json({error: 'Please fill in all fields'}, {status: 400})
+        }
         
         const user = await User.findOne({email});
 
@@ -28,6 +33,7 @@ export async function POST(request: NextRequest) {
             email,
             password: hashedPassword
         })
+
 
         const savedUser = await newUser.save()
         console.log(savedUser);
