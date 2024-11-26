@@ -1,54 +1,45 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import User from '@/models/userModel';
 import nodemailer from 'nodemailer';
-import bcryptjs from 'bcryptjs';
+// Nodemailer is used for sending emails from the server.
 
-export const sendEmail = async({email, emailType, userId}
-    :any) =>{
+export async function sendEmail({ email, emailType, userId }: { email: string; emailType: string; userId: string }) {
     try {
-      const hashedToken = await bcryptjs.hash(userId.toString(), 10);
+        // 1. Define email templates for different email types
+        const subject = emailType === "VERIFY" ? "Verify Your Email" : "Reset Your Password";
+        const link =
+            emailType === "VERIFY"
+                ? `${process.env.BASE_URL}/verify-email?token=${userId}`
+                : `${process.env.BASE_URL}/reset-password?token=${userId}`;
+        // Dynamically determine the email subject and content based on the email type.
+        // For example, emailType "VERIFY" sends a verification email, while "RESET" sends a password reset email.
 
-      if(emailType === 'VERIFY'){
-        const updatedUser=await User.findByIdAndUpdate(userId,
-          {$set: {
-          verifyToken:hashedToken, 
-          verifyTokenExpiry: Date.now() 
-          + 3600000}})
-      } else if(emailType === 'RESET'){
-        await User.findByIdAndUpdate(userId,{
-          $set:{forgotPasswordToken:hashedToken, 
-          forgotPasswordTokenExpiry: Date.now() + 3600000}})
-      }
+        // 2. Configure the transport using an SMTP server or a service like Gmail
+        const transporter = nodemailer.createTransport({
+            service: "gmail", // Specify the email service provider
+            auth: {
+                user: process.env.EMAIL_USER, // The email address to send emails from (stored securely in env variables)
+                pass: process.env.EMAIL_PASS, // The password or app-specific password for the email address
+            },
+        });
 
-        // Looking to send emails in production? Check out our Email API/SMTP product!
-      const transport = nodemailer.createTransport({
-        host: "sandbox.smtp.mailtrap.io",
-        port: 2525,
-        auth: {
-          user: "7cef84c802bd78",
-          pass: "8353979324d0af",
-        },
-      });
-
+        // 3. Define the email options
         const mailOptions = {
-            from: 'divyansh@divyansh.ai',
-            to: email,
-            subject: emailType === 'VERIFY' ? "Verify your email"
-            : "Reset your password",
-            html: `<p>Click <a href="${process.env.DOMAIN}/
-            verifyemail?token=${hashedToken}">here</a> to 
-            ${emailType === "VERIFY" ? 
-            "verify your email" : "reset your password"} 
-            or copy and paste the link in your browser.
-            </br> ${process.env.DOMAIN}/verifyemail?token=${hashedToken}
-            </p>`,
-          }
+            from: process.env.EMAIL_USER, // Sender's email address
+            to: email, // Recipient's email address
+            subject, // Email subject determined earlier
+            html: `<p>Please click the following link to ${emailType === "VERIFY" ? "verify your email" : "reset your password"}:</p>
+                   <a href="${link}">${link}</a>
+                   <p>This link will expire in 24 hours.</p>`,
+            // Email content includes a message with a clickable link for verification or password reset.
+        };
 
-        const mailResponse = await transport.sendMail(mailOptions);
-        return mailResponse;
+        // 4. Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Email sent successfully:", info.messageId);
+        // Log the success message, which includes the unique email message ID for reference.
 
-    } catch (error:any) {
-        throw new Error(error.message);
+    } catch (error) {
+        console.error("Error sending email:", error);
+        throw new Error("Unable to send email, please try again later.");
+        // Log and throw an error if the email fails to send.
     }
 }

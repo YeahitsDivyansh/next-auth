@@ -1,39 +1,68 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {connect} from '@/dbConfig/dbConfig';
-import User from '@/models/userModel';
-import {NextRequest,NextResponse} from 'next/server'
+// Disables TypeScript linting for explicit "any" type, which can be useful when working with untyped errors or dynamic objects.
 
-connect()
+import { connect } from '@/dbConfig/dbConfig';
+// Importing the database connection function to establish a connection to MongoDB.
+
+import User from '@/models/userModel';
+// Importing the User model to interact with the `users` collection in the database.
+
+import { NextRequest, NextResponse } from 'next/server';
+// Importing Next.js-specific objects for handling server-side requests and responses.
+
+connect();
+// Establish the connection to MongoDB. This ensures the database is ready for operations.
 
 export async function POST(request: NextRequest) {
     try {
-        const reqBody = await request.json()
-        const {token} = reqBody;
+        // Parse the incoming request body to extract the token
+        const reqBody = await request.json();
+        const { token } = reqBody;
+        // Extracting the verification `token` from the parsed request body
+
         console.log(token);
-        
-       const user = await User.findOne({verifyToken:token, 
-       verifyTokenExpiry:{$gt:Date.now()}})
+        // Log the token for debugging purposes.
 
-       if(!user){
-        return NextResponse.json({error:'Invalid token'},
-        {status:400})
-       }
+        // Find a user with the given token and ensure the token is not expired
+        const user = await User.findOne({
+            verifyToken: token, // Match the verification token
+            verifyTokenExpiry: { $gt: Date.now() }, // Ensure the token's expiry time is in the future
+        });
 
-       console.log(user);
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Invalid token' },
+                { status: 400 }
+            );
+            // If no matching user is found or the token is expired, respond with an error message and a 400 status code.
+        }
 
-       user.isVerified = true;
-       user.verifyToken = undefined;
-       user.verifyTokenExpiry = undefined;   
-       
-       await user.save()
+        console.log(user);
+        // Log the user object for debugging purposes.
 
-       return NextResponse.json({
-        message: 'Email verified successfully',
-        success: true
-        },{status:200})
+        // Mark the user's email as verified and clear the verification token and expiry fields
+        user.isVerified = true; // Update the `isVerified` flag to true
+        user.verifyToken = undefined; // Remove the verification token
+        user.verifyTokenExpiry = undefined; // Remove the token expiry date
 
-    } catch (error:any) {
-        return NextResponse.json({error:error.message},
-        {status:500})
+        await user.save();
+        // Save the updated user object to the database.
+
+        // Respond with a success message
+        return NextResponse.json(
+            {
+                message: 'Email verified successfully', // Informational success message for the client
+                success: true, // Indicates the operation was successful
+            },
+            { status: 200 }
+        );
+
+    } catch (error: any) {
+        // Catch and handle any unexpected errors during the email verification process
+        return NextResponse.json(
+            { error: error.message }, 
+            { status: 500 }
+        );
+        // Return a 500 status code and the error message in case of server-side issues.
     }
 }
