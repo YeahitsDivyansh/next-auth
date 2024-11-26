@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# User Authentication System
 
-## Getting Started
+## Introduction
 
-First, run the development server:
+This project is a **User Authentication System** built using **Next.js**, **React**, and **Tailwind CSS**. It allows users to **sign up**, **log in**, **verify their email**, and view their **profile page** after authentication. The application includes basic authentication features such as **JWT token handling**, **email verification** through a unique token, and **logout functionality**.
+
+The project is intended to demonstrate the integration of frontend and backend components in a full-stack application, ensuring a seamless and secure user experience.
+
+## Features
+
+- **User Signup**: Users can sign up by providing their email, username, and password.
+- **User Login**: Registered users can log in with their credentials to access the app.
+- **Email Verification**: After signing up, users receive a unique token for email verification.
+- **User Profile**: Authenticated users can view their profile information.
+- **Logout**: Users can log out to end their session and remove the JWT token.
+
+## Tech Stack
+
+- **Frontend**: Next.js, React, Tailwind CSS
+- **Backend**: Node.js, Express (via API routes in Next.js)
+- **Database**: MongoDB (via Mongoose ORM)
+- **Authentication**: JWT (JSON Web Token)
+- **Email Service**: (If integrated in the backend, e.g., SendGrid or Nodemailer)
+
+## Prerequisites
+
+- Node.js
+- npm or yarn
+- MongoDB (local or cloud database)
+
+## Installation
+
+### Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+git clone https://github.com/your-username/your-repository-name.git
+cd your-repository-name
